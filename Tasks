@@ -1,0 +1,64 @@
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+int findParent(vector<int>& parent, int i) {
+    if (parent[i] != i) {
+        parent[i] = findParent(parent, parent[i]);
+    }
+    return parent[i];
+}
+
+int makeConnected(int n, vector<vector<int>>& connections) {
+    if (connections.size() < n - 1) {
+        return -1;
+    }
+
+    vector<int> parent(n);
+    vector<int> rank(n, 0);
+    int count = n;
+
+    for (int i = 0; i < n; i++) {
+        parent[i] = i;
+    }
+
+    for (auto& connection : connections) {
+        int ai = connection[0];
+        int bi = connection[1];
+
+        int parent_ai = findParent(parent, ai);
+        int parent_bi = findParent(parent, bi);
+
+        if (parent_ai != parent_bi) {
+            count--;
+            if (rank[parent_ai] < rank[parent_bi]) {
+                parent[parent_ai] = parent_bi;
+            }
+            else if (rank[parent_ai] > rank[parent_bi]) {
+                parent[parent_bi] = parent_ai;
+            }
+            else {
+                parent[parent_ai] = parent_bi;
+                rank[parent_bi]++;
+            }
+        }
+    }
+
+    if (count == 1) {
+        return count - 1;
+    }
+    else {
+        return -1;
+    }
+}
+
+int main() {
+    int n = 4;
+    vector<vector<int>> connections = {{0, 1}, {0, 2}, {1, 2}};
+
+    int result = makeConnected(n, connections);
+    cout << "Minimum number of cable moves: " << result << endl;
+
+    return 0;
+}
